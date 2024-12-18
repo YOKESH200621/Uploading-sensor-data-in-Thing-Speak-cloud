@@ -1,5 +1,6 @@
 # Uploading temperature sensor data in Thing Speak cloud
-
+# Name : YOKESH I
+# Reference number : 24013623
 # AIM:
 To monitor the temperature sensor data in the Thing speak using an ESP32 controller.
 
@@ -71,12 +72,67 @@ Automatically act on your data and communicate using third-party services like T
 
 
 # PROGRAM:
+```
+#include <WiFi.h>
+#include "ThingSpeak.h" // always include thingspeak header file after other header files and custom macros
+#define Soil_Moisture 34
+char ssid[] = "1";   // your network SSID (name) 
+char pass[] = "12345678";   // your network password
+int keyIndex = 0;            // your network key Index number (needed only for WEP)
+WiFiClient  client;
 
+unsigned long myChannelNumber = 2787743;
+const int ChannelField = 1; 
+const char * myWriteAPIKey = "T5IOUX8JUG39FKKY";
+
+const int airValue = 4095;      // Analog value when the sensor is in dry air
+const int waterValue = 0;
+int percentage =0;
+void setup() {
+  Serial.begin(115200);  //Initialize serial
+  pinMode(Soil_Moisture, INPUT);
+  WiFi.mode(WIFI_STA);   
+  ThingSpeak.begin(client);  // Initialize ThingSpeak
+}
+
+void loop()
+{
+ if (WiFi.status() != WL_CONNECTED)
+  {
+    Serial.print("Attempting to connect to SSID: ");
+    Serial.println(ssid);
+    while (WiFi.status() != WL_CONNECTED)
+    {
+      WiFi.begin(ssid, pass);
+      Serial.print(".");
+      delay(5000);
+    }
+    Serial.println("\nConnected.");
+  }
+
+ /* Soil MoistureSensor */
+  int Soil_Value = analogRead(Soil_Moisture);
+  percentage = map(Soil_Value, airValue, waterValue, 0, 100);
+
+  // Ensure the percentage stays in the 0-100 range
+  percentage = constrain(percentage, 0, 100);
+  Serial.println("Soil moisture percentage");
+  Serial.println(percentage);
+  ThingSpeak.writeField(myChannelNumber, ChannelField, percentage, myWriteAPIKey);
+  
+   delay(5000); // Wait 20 seconds to update the channel again
+}
+```
 # CIRCUIT DIAGRAM:
 
+![circuit dig exp3](https://github.com/user-attachments/assets/741717a9-16f6-45cc-9438-20de91313c36)
+
 # OUTPUT:
+![exp3 (1)]![Screenshot 2024-12-18 180305](https://github.com/user-attachments/assets/6790be6c-2edb-4f2b-ae61-60baf38a28db)
+
+
+![exp3 (2)](https://github.com/user-attachments/assets/3e4b63b6-7fe2-4e96-8f2b-ec6b0b18b22e)
 
 # RESULT:
-
 Thus the temperature sensor values are updated in the Thing speak using ESP32 controller.
 
